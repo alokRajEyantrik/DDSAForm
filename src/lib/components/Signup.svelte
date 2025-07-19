@@ -12,7 +12,8 @@
 		isChecked: false
 	};
 
-	async function submitForm() {
+	async function submitForm(event: Event) {
+		event.preventDefault();
 		try {
 			const response = await fetch('https://ddsa-api-1.onrender.com/submit', {
 				method: 'POST',
