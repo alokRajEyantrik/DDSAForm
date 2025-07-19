@@ -6,7 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'build',
   server: {
     url: 'http://192.168.1.5:8000',
-    cleartext: true
+    cleartext: true,
+    allowNavigation: ['ddsa-api-1.onrender.com']
   }
 };
 
