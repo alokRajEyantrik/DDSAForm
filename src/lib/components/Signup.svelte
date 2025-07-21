@@ -4,6 +4,7 @@
 	import InputField from './InputField.svelte';
 	import SelectField from './SelectField.svelte';
 
+	let isSubmitting = false;
 	const formData = {
 		firstName: '',
 		lastName: '',
@@ -14,6 +15,7 @@
 
 	async function submitForm(event: Event) {
 		event.preventDefault();
+		isSubmitting = true;
 
 		try {
 			const response = await fetch('https://ddsa-api-1.onrender.com/submit', {
@@ -38,6 +40,8 @@
 		} catch (error) {
 			console.error('❌ Error submitting form:', error);
 			alert('Something went wrong while submitting the form.');
+		} finally {
+			isSubmitting = false; // Optionally, you can reset the form or handle post-submission logic here
 		}
 	}
 </script>
@@ -93,7 +97,7 @@
 				checkLabel="I agree to the terms and conditions"
 			/>
 
-			<Button btnName="Submit" type="submit" />
+			<Button btnName="Submit" type="submit" loading={isSubmitting} />
 		</form>
 	</div>
 </section>
