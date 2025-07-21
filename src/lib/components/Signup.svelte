@@ -14,29 +14,29 @@
 
 	async function submitForm(event: Event) {
 		event.preventDefault();
+
 		try {
 			const response = await fetch('https://ddsa-api-1.onrender.com/submit', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ formData })
+				body: JSON.stringify(formData)
 			});
 
 			if (!response.ok) {
 				throw new Error('Failed to submit form');
 			}
 
-			alert('Form submitted successfully!');
+			alert('Form submitted successfully!'); // Reset fields
 
-			// Reset form data
 			formData.firstName = '';
 			formData.lastName = '';
 			formData.mobileNumber = '';
 			formData.selectedCity = '';
 			formData.isChecked = false;
 		} catch (error) {
-			console.error('Error submitting form:', error);
+			console.error('❌ Error submitting form:', error);
 			alert('Something went wrong while submitting the form.');
 		}
 	}
