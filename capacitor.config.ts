@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'ddsaform',
   webDir: 'build',
   server: {
-    url: 'http://localhost:8000',
+    url: 'http://10.0.2.2:8000',
     cleartext: true,
     allowNavigation: ['ddsa-api-1.onrender.com']
   }
