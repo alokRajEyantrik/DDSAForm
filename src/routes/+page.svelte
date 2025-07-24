@@ -2,8 +2,10 @@
 	import { writable, get } from 'svelte/store';
 	import { formJson } from '$lib/data/questions';
 	import jsonLogic from 'json-logic-js';
+	import Modal from '$lib/components/Modal.svelte';
 
 	let isSubmitting = false;
+	let modalOpen = false;
 	let formData = writable({});
 	const currentStep = writable(0);
 
@@ -64,13 +66,12 @@
 				body: JSON.stringify({ formData: $formData })
 			});
 
-			console.log(response, 'response');
-
 			if (!response.ok) {
 				throw new Error('Failed to submit form');
 			}
 
-			alert('Form submitted successfully!'); // Reset fields
+			// alert('Form submitted successfully!'); // Reset fields
+			modalOpen = true;
 		} catch (error) {
 			console.error('❌ Error submitting form:', error);
 			alert('Something went wrong while submitting the form.');
@@ -85,6 +86,7 @@
 </script>
 
 <main class="max-w-2xl mx-auto p-6">
+	<Modal open={modalOpen} on:close={() => (modalOpen = false)} />
 	<h1 class="text-2xl font-bold mb-6">
 		{formJson.formName || 'Dynamic Loan Form'}
 	</h1>
