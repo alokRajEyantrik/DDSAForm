@@ -3,6 +3,10 @@
 	import { formJson } from '$lib/data/questions';
 	import jsonLogic from 'json-logic-js';
 	import Modal from '$lib/components/Modal.svelte';
+	import { decrypt, encrypt } from '$lib/encryption';
+	import { requestCameraPermission, requestLocationPermission } from '$lib/permissions';
+	import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+	import { getCurrentPosition } from '$lib/location';
 
 	let isSubmitting = false;
 	let modalOpen = false;
@@ -80,9 +84,70 @@
 		}
 	}
 
-	// function submitHandler() {
-	// 	console.log('submit ho raha hai');
+	// async function secureProcess() {
+	// 	let dataStr = JSON.stringify($formData);
+	// 	const encrypted = await encrypt(dataStr);
+	// 	console.log('Encrypted:', encrypted);
+
+	// 	const decrypted = await decrypt(encrypted);
+	// 	console.log('Decrypted:', decrypted);
 	// }
+
+	async function secureProcess() {
+		encryptData();
+		decryptData();
+	}
+
+	async function encryptData() {
+		let dataStr = JSON.stringify($formData);
+		const encrypted = await encrypt(dataStr);
+		return encrypted;
+	}
+
+	async function decryptData() {
+		let dataStr = JSON.stringify($formData);
+		const decrypted = await decrypt(dataStr);
+		return decrypted;
+	}
+
+	$: if ($formData) {
+		// If you want to debounce or limit calls, implement logic here
+		secureProcess();
+	}
+
+	let cameraGranted = false;
+	$: capturedImage = null;
+
+	// Call when user requests camera permission
+	async function tryEnableCamera() {
+		cameraGranted = await requestCameraPermission();
+	}
+
+	async function capturePhoto() {
+		try {
+			const photo = await Camera.getPhoto({
+				quality: 80,
+				allowEditing: false,
+				resultType: CameraResultType.DataUrl,
+				source: CameraSource.Camera
+			});
+			capturedImage = photo.dataUrl;
+		} catch (error) {
+			alert('Camera error or cancelled');
+		}
+	}
+
+	let location = null;
+
+	async function fetchLocation() {
+		const granted = await requestLocationPermission();
+		if (granted) {
+			location = await getCurrentPosition();
+			console.log('Location:', location);
+		} else {
+			alert('Location permission denied');
+		}
+	}
 </script>
 
 <main class="max-w-2xl mx-auto p-6">
@@ -181,6 +246,42 @@
 			</button>
 		{/if}
 	</div>
+
+	<!-- <button on:click={() => secureProcess()}>Decrypt</button> -->
+
+	<div class="flex items-center gap-2 py-2">
+		<button class="bg-blue-400 text-white p-2 rounded-md" on:click={() => encryptData()}
+			>Encrypt</button
+		>
+		<button class="bg-orange-400 text-white p-2 rounded-md" on:click={() => decryptData()}
+			>Decrypt</button
+		>
+	</div>
+	<!-- Button to request permission -->
+	{#if !cameraGranted}
+		<button class="bg-red-400 text-white p-2 rounded-md" on:click={tryEnableCamera}
+			>Allow Camera Permission</button
+		>
+	{/if}
+
+	<!-- Capture button shown ONLY if permission granted -->
+	<!-- {#if cameraGranted} -->
+	<button class="bg-green-400 text-white p-2 rounded-md" on:click={capturePhoto}>Capture</button>
+	<!-- {/if} -->
+
+	<!-- Show image preview after capturing -->
+	{#if capturedImage}
+		<img src={capturedImage} alt="Captured " style="max-width: 300px;" />
+	{/if}
+
+	<button class="bg-purple-400 text-white p-2 rounded-md" on:click={fetchLocation}
+		>Get Location</button
+	>
+
+	{#if location}
+		<p>Latitude: {location.latitude}</p>
+		<p>Longitude: {location.longitude}</p>
+	{/if}
 
 	<pre class="mt-4 text-sm bg-gray-100 p-4 rounded">{JSON.stringify($formData, null, 2)}</pre>
 </main>
