@@ -93,26 +93,41 @@
 	// 	console.log('Decrypted:', decrypted);
 	// }
 
-	async function secureProcess() {
-		encryptData();
-		decryptData();
-	}
+	// async function secureProcess() {
+	// 	encryptData();
+	// 	decryptData();
+	// }
 
-	async function encryptData() {
+	// async function encryptData() {
+	// 	let dataStr = JSON.stringify($formData);
+	// 	const encrypted = await encrypt(dataStr);
+	// 	return encrypted;
+	// }
+
+	// async function decryptData() {
+	// 	let dataStr = JSON.stringify($formData);
+	// 	const decrypted = await decrypt(dataStr);
+	// 	return decrypted;
+	// }
+
+	// $: if ($formData) {
+	// 	// If you want to debounce or limit calls, implement logic here
+	// 	secureProcess();
+
+	// }
+
+	let encryptedValue = '';
+	let decryptedValue = '';
+
+	async function handleEncrypt() {
 		let dataStr = JSON.stringify($formData);
-		const encrypted = await encrypt(dataStr);
-		return encrypted;
+		encryptedValue = await encrypt(dataStr);
 	}
 
-	async function decryptData() {
-		let dataStr = JSON.stringify($formData);
-		const decrypted = await decrypt(dataStr);
-		return decrypted;
-	}
-
-	$: if ($formData) {
-		// If you want to debounce or limit calls, implement logic here
-		secureProcess();
+	async function handleDecrypt() {
+		if (encryptedValue) {
+			decryptedValue = await decrypt(encryptedValue);
+		}
 	}
 
 	let cameraGranted = false;
@@ -248,15 +263,45 @@
 	</div>
 
 	<!-- <button on:click={() => secureProcess()}>Decrypt</button> -->
+	<div class="mt-6 space-y-4">
+		<div class="flex items-center gap-2">
+			<button
+				class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+				on:click={handleEncrypt}
+			>
+				Encrypt
+			</button>
+			<button
+				class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+				on:click={handleDecrypt}
+			>
+				Decrypt
+			</button>
+		</div>
 
-	<div class="flex items-center gap-2 py-2">
+		{#if encryptedValue}
+			<div class="bg-gray-100 p-4 rounded">
+				<h3 class="font-bold mb-2">Encrypted Data:</h3>
+				<p class="break-all">{encryptedValue}</p>
+			</div>
+		{/if}
+
+		{#if decryptedValue}
+			<div class="bg-gray-100 p-4 rounded">
+				<h3 class="font-bold mb-2">Decrypted Data:</h3>
+				<pre>{JSON.stringify(JSON.parse(decryptedValue), null, 2)}</pre>
+			</div>
+		{/if}
+	</div>
+
+	<!-- <div class="flex items-center gap-2 py-2">
 		<button class="bg-blue-400 text-white p-2 rounded-md" on:click={() => encryptData()}
 			>Encrypt</button
 		>
 		<button class="bg-orange-400 text-white p-2 rounded-md" on:click={() => decryptData()}
 			>Decrypt</button
 		>
-	</div>
+	</div> -->
 	<!-- Button to request permission -->
 	{#if !cameraGranted}
 		<button class="bg-red-400 text-white p-2 rounded-md" on:click={tryEnableCamera}
